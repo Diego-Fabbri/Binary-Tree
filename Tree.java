@@ -1,0 +1,342 @@
+
+public class Tree {
+	/*ALBERO BINARIO IMPLEMETAZIONE CON I NODI: è un struttura dati in cui compaiono dei nodi. Ogni nodo padre può avere al max due collegamneti a due nodi (detti figli) .
+	 * L'albero binario rispetta le seguenti proprietà:
+	 * 1)info nodo figlio sx <= info del nodo padre;
+	 * 2)info nodo figlio dx >= info del nodo padre;
+	 * 3)n=numero massimo di nodi contenuti in un albero di altezza h= 2^h-1;
+	 * 4)Ni=numero massimo di nodi contenuti al livello i=2^i per i=0....h;*/
+	
+	Node root;//nodo radice dell'albero
+	
+	public Tree() {//costruttore
+		root = null;//albero inzialmente vuoto
+	}
+	public Node getRoot() {return root;}//restitusice nodo radice dell'albero su cui si chiama metodo
+	
+	private static void insert(Node p, int x) {//metodo di inserimento privato 
+		if (p.getInfo() <= x)//se il contenuto da inserire x è maggiore o uguale del contenuto del nodo corrente p
+			//SI SCENDE DI LIVELLO INSERENDO A DESTRA
+			if (p.getRight() == null)//se il nodo destro del nodo corrente è vuoto
+				p.setRight(new Node(x));//si inserisce a destra
+			else//se il nodo destro non è vuoto
+				insert(p.getRight(),x);// si richiama ricorsivamente la funzione per effettuare inserimento scendendo di livello
+		else//se il contenuto da inserire x è minore del contenuto del nodo corrente p
+			//SI SCENDE DI LIVELLO INSERENDO A SINISTRA
+			if (p.getLeft() == null)//se il nodo sinistro del nodo corrente è vuoto
+				p.setLeft(new Node(x));//si inserisce a sinistra
+			else//se il nodo sinistro non è vuoto
+				insert(p.getLeft(),x);// si richiama ricorsivamente la funzione per effettuare inserimento scendendo di livello
+	}
+	
+	public void insert(int x) {//METODO DI INSERIMENTO DI UN NODO DI CONTENUTO X NELL'ALBERO
+		if (root == null)//se albero è vuoto
+			root = new Node(x);//si insersce il nodo di contenuto informativo x come radice
+		else//se albero ha già una radice
+			insert(root, x);//si chiama il metodo PRIVATO per l'inserimento
+	}
+	/*COMPLESSITA' DEL METODO INSERT
+	 * h=altezza dell'albero.
+	 * O(h)=complessità spaziale e temporale del caso peggiore. Nel caso peggiore si avranno h iterazione se bisogna inserire nell'ultimo livello e ci saranno h 
+	 * chiamate ricorsive della funzione a se stessa .*/
+	
+	private boolean search(Node p, int x) {//metodo privato di ricerca del contenuto x partendo dal nodo p 
+	/*CASO BASE 1*/	if (p == null)//se il nodo corrente è vuoto
+			              return false;
+
+	/*CASO BASE 2*/if (p.getInfo() == x)//se il contenuto del nodo corrente coincide con il valore da cercare
+			            return true;//l'elemento ricercato è presente
+		           if (p.getInfo() > x)//se il contenuto del nodo corrente è maggiore del il valore da cercare
+		        	    return search(p.getLeft(),x);//si richiama la funzione in maniera ricorsiva cercando a partire dal nodo figlio sinistro e si scende di livello
+		          else//se il contenuto del nodo corrente è minore o uguale del il valore da cercare
+			           return search(p.getRight(),x);//si richiama la funzione in maniera ricorsiva cercando a partire dal nodo figlio destro e si scende di livello
+	}
+	
+		public boolean search(int x) {//METODO DI RICERCA DI UN NODO DI CONTENUTO X NELL'ALBERO
+		return search(root,x);//si richiama la funzione privata di ricerca del contenuto x partendo dal nodo radice (root)
+		
+	}
+		/*COMPLESSITà DEL METODO SEARCH
+		 * O(h)=In un albero binario di ricerca, ad ogni passo si visita un solo sottoalbero: infatti le due chiamate ricorsive compaiono nel metodo in rami mutuamente esclusivi.
+		 *  Di conseguenza nel caso pessimo la ricerca ha una complessità proporzionale alla massima profondità dell'albero.
+		 *  CONSIDERAZIONE:Se l'AlberoBinarioRicerca è bilanciato si dimostra che la sua profondità è logaritmica nel numero di nodi O(log2n).Si riduce al caso di ricerca binaria di un elemento in
+		 *  una lista di nodi .In un albero binario invece senza relazioni di ordinamento totale, nel caso pessimo (se la chiave cercata non esiste o sta in ultimo livello) 
+		 *  dobbiamo visitare tutti i nodi, quindi la complessità è lineare nel numero dei nodi n O(n). 
+ */
+		
+	// ========== CANCELLAZIONE NODO ==========//
+	/*Nella eliminazione di un nodo ad un albero si possono presentare tre casi
+	 * CASO 1: il nodo da eliminare è un nodo foglia(non presenta figli). Si svuota contenuto del nodo settando il contenuto informativo come null
+	 * CASO 2: il nodo da eliminare presenta SOLO un nodo figlio. Si fa puntare il nodo padre del nodo da eliminare all'unico figlio del nodo eliminato. Nel caso si tratti di eliminare la radice,
+	 * la nuova radice dell'albero diventa unico nodo figlio del nodo eliminato(ovvero vecchia radice).
+	 * CASO 3:il nodo da eliminare presenta entrambi i nodi figlio.Ci si riconduce al caso 2 precedente spostando uno dei sotto-alberi
+	 *  ovvero sostituendo il nodo eliminato con un suo successore o predecessore.Il codice fa uso del successore
+	 */
+	
+	private int deleteMin(Node p, Node c) {//metodo privato di eliminazione del nodo p partendo dal suo figlio destro c al fine di sostituirlo col successore 
+		//sostituirà la radice con il suo successore
+		//si deve cercare il minimo del sottoalbero destro del nodo p  che inizialmente punta alla radice scendendo fino al ultimo livello fino al nodo più a sinistra
+		if (c.getLeft() != null)//se il nodo sinistro del nodo c è non null , si scende di livello verso sinistra
+			return deleteMin(c, c.getLeft());//si richiama la funzione in maniera ricorsiva puntando a c e al nodo sinistro di c
+		
+		else{//(c.getLeft()==null)---CASI in cui non c'è un nodo sinistro da cui scendere(CASO 2) e quindi si guarda alla parte destra
+		if (p.getLeft() == c)//caso in cui il nodo sinistro del nodo p, da eliminare/generico nodo padre di una generica iterazione,
+			                //ha uguale contenuto informativo del nodo puntato da c(figlio sinistro di p)
+			p.setLeft(c.getRight());//si setta impostando il nuovo nodo sinistro di p uguale al nodo destro di c si crea nuovo collegamento e avviene eliminazione
+		else//(p.getLeft() != c)caso in cui il nodo sinistro del nodo p, da eliminare/generico nodo padre di una generica iterazione,
+              //ha diverso contenuto informativo del nodo puntato da c(figlio sinistro di p)
+			p.setRight(c.getRight());//si setta impostando il nuovo nodo destro di p uguale al nodo destro di c si crea nuovo collegamento e avviene eliminazione
+		}
+		//NB:il nodo c nei casi base punta al predecessore cercato
+		
+		return c.getInfo();//si restituisce il contenuto del nodo puntato da c
+	}
+	
+	private boolean delete(Node p, Node c, int x) {
+		//si fa uso di due puntatori p e c che inizialmente partono dalla radice quando il metodo viene chiamato
+		
+		if (c == null)
+			return false;
+		if (x == c.getInfo()) {
+			if (c.getLeft() == null && c.getRight() == null) {
+				//casi
+				if (p.getLeft() == c)
+					p.setLeft(null);
+				else
+					p.setRight(null);
+				    return true;
+			}
+			if (c.getLeft() == null) {
+				if (p.getLeft() == c)
+					p.setLeft(c.getRight());
+				else
+					p.setRight(c.getRight());
+				return true;
+			}
+			if (c.getRight() == null) {
+				if (p.getLeft() == c)
+					p.setLeft(c.getLeft());
+				else
+					p.setRight(c.getLeft());
+				return true;
+			}
+			c.setInfo(deleteMin(c, c.getRight()));
+			return true;
+		}
+		else {
+			if (x < c.getInfo()) 
+			return delete(c, c.getLeft(), x); 
+		else
+			return delete(c, c.getRight(), x); 
+		}
+	}
+	
+	public boolean delete(int x) {//METODO DI ELIMINAZIONE DI UN NODO DI CONTENUTO INFORMATIVO X
+		if (root == null)//se albero è vuoto cancellazione non possibile
+			return false;
+		if (x == root.getInfo()) {//CASO ELIMINAZIONE RADICE: se il contenuto da eliminare si trova nella radice
+			if (root.getLeft() == null && root.getRight() == null) {//CASO 1: se la radice non ha nodi figli
+				root = null;//si svuota la radice e l'abero diventa vuoto
+				return true;
+			}
+			if (root.getLeft() == null) {//CASO 2:se la radice non ha figlio sinistro
+				root = root.getRight();//la nuova radice diventa il figlio destro della vecchia radice che va eliminata
+				return true;
+			}
+			if (root.getRight() == null) {//CASO 2: se la radice non ha figlio destro
+				root = root.getLeft();//la nuova radice diventa il figlio sinistro della vecchia radice che va eliminata
+				return true;
+			}
+			else//CASO 3: se la radice presenta entrambi i nodi figlio
+			root.setInfo(deleteMin(root, root.getRight()));//si modifica in contenuto informativo della radice richiamando il metodo PRIVATO deleteMin
+			//si punta al sottoalbero destro quindi di guarda al successore della radice
+			return true;
+		}
+		else//se il contenuto da eliminare non si trova nella radice bisogna scorrere albero
+		return delete(root, root, x); 
+	}
+	/*COMPLESSITA' DEL METODOdelete(int x)
+	 *O(h)= complessità temporale. La cancellazione al pari delle altre due operazioni, ricerca ed inserimento, ha una
+     *complessità proporzionale all’altezza dell’albero poiché nel caso pessimo potremmo
+     *muoverci su l’intera altezza dell’albero alla ricerca del predecessore*/
+		
+
+	//========== METODI PER LA VISUALIZZAZIONE =========
+	
+	private static void print(Node p) {
+		if (p != null) {
+			print(p.getLeft());
+			System.out.print(p.getInfo() + " ");
+			print(p.getRight());
+		}
+	}
+	
+	public  void print() {//METODO DI VISITA E STAMPA INFISSA
+		/*visita infissa : viene stampato il
+        *sottoalbero di sinistra, poi il valore del nodo e
+        *infine il sottoalbero di destra*/
+		System.out.print("Infix:   ");
+		print(root);
+		System.out.println();
+	}
+
+	private static void printPre(Node p) {
+		if (p != null) {
+			System.out.print(p.getInfo() + " ");
+			printPre(p.getLeft());
+			printPre(p.getRight());
+		}
+	}
+	
+	public  void printPre() {//METODO DI VISITA E STAMPA FREFISSA
+		/*stampa la radice  i valori nel sottoalbero sinistro e poi stampa i
+         valori nel sottoalbero destro */
+		System.out.print("Prefix:  ");
+		printPre(root);
+		System.out.println();
+	}
+
+	private static void printPost(Node p) {
+		if (p != null) {
+			printPost(p.getLeft());
+			printPost(p.getRight());
+			System.out.print(p.getInfo() + " ");
+		}
+	}
+	
+	public  void printPost() {//METODO DI STAMPA E DI VISITA POSTFISSA
+		/*visita postfissa : viene stampato il
+         *sottoalbero di sinistra, poi il sottoalbero di
+         *destra e infine il valore della radice*/
+		System.out.print("Postfix: ");
+		printPost(root);
+		System.out.println();
+	}
+	
+	private String toString(Node p, int k) {
+		String s = "";
+		if (p != null) {
+			for (int i = 1; i <= k*3; i++)
+				s += " ";
+			s += p.getInfo() + "\n" + toString(p.getLeft(),k+1) + toString(p.getRight(),k+1);		
+		}
+		return s;
+	}
+		
+	public String toString() {
+		return toString(root, 0);
+	}
+	
+	                                          //-------------METODI RICORSIVI DI SUPPORTO VERIFICARNE LA BONTA'------------------------//
+	//METODO CHE CI DICE SE IL NODO IN INPUT è UNA FOGLIA
+			public boolean isFoglia(Node a){
+				if(a.getRight()==null && a.getLeft()==null)
+						return true;
+				else
+				       return false;
+			}
+			
+	
+
+	
+	//METODO DI RICERCA DI UN NODO IN UN ALBERO
+	private static boolean esiste(Node a, int x,) {//ESERCITAZIONE DEL 7/6/2019 IN AULA CORRETTO
+		if (a == null)//se il nodo puntato è null 
+			return false;
+		if (a.getInfo() == x)//se il nodo puntato ha contenuto uguale a quello cercato 
+			return true;
+	    else//se il nodo puntato ha contenuto diverso a quello cercato 
+		//si richiama ricorsivamente la funzione sui nodi figli  
+		    return esiste(a.getLeft(), x) || esiste(a.getRight(), x);
+
+	}
+	// 3): contare il numero di nodi dell'albero binario di ricerca avente un
+	// contenuto informativo compreso e uguale tra due interi
+	// CTM Per Casa
+	// CTP O(n)
+	// CSM Per Casa
+	// CSP O(n) albero degenere
+	public static int contaTraRicerca(Node a, int min, int max) {//ESERCITAZIONE DEL 7/6/2019 IN AULA CORRETTO
+		if (a == null)
+			return 0;
+		if (a.getInfo() <= max && a.getInfo() >= min)
+			return 1 + contaTraRicerca(a.getLeft(), min, max) + contaTraRicerca(a.getRight(), min, max);
+		if (a.getInfo() < min)//se tale condzione di verifica allora si effettua ricerca nel sottoalbero destro che contiene valori più grandi
+			return contaTraRicerca(a.getRight(), min, max);//richiamando la funzione in maniera ricorsiva
+		else//a.getInfo()>max)//se tale condzione di verifica allora si effettua ricerca nel sottoalbero sinistro che contiene valori più piccolo
+			return contaTraRicerca(a.getLeft(), min, max);//richiamando la funzione in maniera ricorsiva
+	}
+	//METODO CHE CONTA IL NUMERO DEI NODI IN UN ALBERO LA CUI RADICE è IN INPUT 
+	public static int contaNodi(Node a) {
+		if (a == null)// condizione di uscita il nodo è null
+			return 0;
+		else{//nodo puntato ha almeno un figlio si aggiunge 1 e si richiama ricorsivamente la funzione sui nodi figli per scendere
+	            return 1 + contaNodi(a.getLeft()) + contaNodi(a.getRight());
+			   
+		}
+	}
+	//METODO CHE SOMMA IL CONTENUTO DEI NODI IN UN ALBERO LA CUI RADICE è IN INPUT 
+		public static int sommaNodi(Node a) {
+			if (a == null)// condizione di uscita il nodo è null
+				return 0;
+			else{//nodo puntato ha almeno un figlio si aggiunge  e si richiama ricorsivamente la funzione sui nodi figli per scendere
+		            return a.getInfo() + contaNodi(a.getLeft()) + contaNodi(a.getRight()) ;}
+		            }
+		//METODO DI RICERCA DEL MASSIMO IN UN ALBERO BINARIO BINARIO DI RICERCA AVENDO RADICE IN INPUT
+			public static int massimoABR(Node a){
+				int x=a.getInfo();//salviamo informazione di partenza della radice supponendo che essa sia il max
+			if(a.getRight()!=null){//se il nodo in questione ha un nodo figlio destro
+				massimoABR(a.getRight());}//si richiama la funzione per scendere di livello
+			else{//se il nodo in questione non ha un nodo figlio destro non c'è nulla da scorrere
+					return x;}
+			
+			}
+			//METODO DI RICERCA DEL MINIMO IN UN ALBERO BINARIO DI RICERCA AVENDO RADICE IN INPUT
+			public static int minimoABR(Node a){
+				int x=a.getInfo();//salviamo informazione di partenza della radice supponendo che essa sia il min
+			if(a.getLeft()!=null){//se il nodo in questione ha un nodo figlio sinistro
+				minimoABR(a.getLeft());}//si richiama la funzione per scendere di livello
+			else{//se il nodo in questione non ha un nodo figlio sinistro non c'è nulla da scorrere
+					return x;}
+			
+			}
+			//METODO CHE RESTITUISCE IL SUCCESSORE DEllA RADICE DELL'ALBERO BINARIO DI RICERCA IN INPUT
+			public int Successore(Node a) {
+				if(a.getRight()!=null)//se radice ha un figlio destro
+					return minimoABR(a.getRight());
+				else//a.getRight()==null)//se radice non ha un figlio destro
+					return null;// non c'è successore 
+			}
+				
+			//METODO CHE RESTITUISCE IL PREDECESSORE DEllA RADICE DELL'ALBERO BINARIO DI RICERCA IN INPUT
+			public int Predecessore(Node a) {
+				if(a.getLeft()!=null)//se radice ha un figlio sinistro
+					return massimoABR(a.getLeft());
+				else//a.getLeft()==null)//se radice non ha un figlio sinistro
+					return null;// non c'è predecessore 
+			}
+			//METODO CHE RESTITUSICE IL NUMERO DI FOGIE IN UN ALBERO LA CUI RADICE è IN INPUT(VERIFICARE)
+			public int contaFoglie(Node a){
+				if(a==null)//se punto ad un nodo vuoto 
+					return 0;
+				if(a.getRight()==null && a.getLeft()==null){//se il nodo è foglia
+					return 1;}
+			else{//se il nodo non è foglia richiamiamo ricorsivamente la funzione sui due nodi figli indipendentemente da quanti/quali abbia poichè c'è il primo if che ce lo permette
+				return contaFoglie(a.getRight())+contaFoglie(a.getLeft()) ;
+				}
+			}
+			//METODO CHE SOMMA IL CONTENUTO DELLE FOGLIE PRESENTI IN UN ALBERO PARTENDO DALLA RADICE IN INPUT
+			public static int sommaFoglie(Node a){
+				if(a==null)//se si punta al nodo null
+					return=0;
+				if(isFoglia(a)==true)//chiama metodo della classe Node per verificare se il nodo a sia una foglia o meno
+					return a.getInfo();
+				else//caso in cui il nodo ha almeno un figlio si richiama ricorsivamente la funzione sui nodi figli indipendentemente da quanti/quali abbia poichè c'è il primo if che ce lo permette
+					return contaFoglie(a.getRight())+sommaFoglie(a.getLeft());
+			}
+			
+			
+			}
+	
+
+
